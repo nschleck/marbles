@@ -1,6 +1,13 @@
 # Example file showing a circle moving on screen
 import pygame
+from pygame import gfxdraw # antialiasing
 from marble import Marble
+from render import *
+
+# TODO implement sprites
+# TODO implement physics
+# TODO implement sprite-based phyics collisions
+
 
 # pygame setup
 pygame.init()
@@ -10,7 +17,11 @@ running = True
 dt = 0
 
 # test objects
-test_marble = Marble(40, "white", screen)
+marbles = []
+test_marble = Marble(40, pygame.Color("purple"), screen)
+test_marble_2 = Marble(30, pygame.Color("red"), screen)
+marbles.append(test_marble)
+marbles.append(test_marble_2)
 
 while running:
     # poll for events
@@ -19,8 +30,7 @@ while running:
             running = False
 
     # update screen
-    screen.fill("black")
-    test_marble.draw()
+    redraw_screen(screen, marbles)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -38,7 +48,3 @@ while running:
     dt = clock.tick(60) / 1000 # limits FPS to 60
 
 pygame.quit()
-
-# def redraw_screen():
-#     screen.fill("black")
-#     test_marble.draw()
