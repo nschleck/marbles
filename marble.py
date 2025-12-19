@@ -2,8 +2,8 @@ import pygame
 from pygame import gfxdraw # antialiased shapes
 import random
 
-INIT_VEL_SCALAR = 40
-GRAVITY_VECTOR = pygame.Vector2(0, 40)
+INIT_VEL_SCALAR = 150
+GRAVITY_VECTOR = pygame.Vector2(0, 100)
 
 class Marble:
     all_marbles = []
@@ -17,6 +17,7 @@ class Marble:
         self.color_outline = pygame.Color("black")
         self.screen = screen
 
+        #initial position and velocity
         self.pos = pygame.Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2)
         self.vel = pygame.Vector2(random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR), random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR))
 
@@ -41,6 +42,23 @@ class Marble:
 
     def update_position(self, dt):
         self.pos += (self.vel * dt)
+
+        #check for wall collisions
+        scr_width = self.screen.get_width()
+        scr_height = self.screen.get_height()
+
+        if (self.pos.x + self.radius) > scr_width:
+            self.pos.x = scr_width - self.radius
+            self.vel.x *= -1
+        elif (self.pos.x - self.radius) < 0:
+            self.pos.x = self.radius
+            self.vel.x *= -1
+        if (self.pos.y + self.radius) > scr_height:
+            self.pos.y = scr_height - self.radius
+            self.vel.y *= -1
+        elif (self.pos.y - self.radius) < 0:
+            self.pos.y = self.radius
+            self.vel.y *= -1
     
     def update_velocity(self, dt):
         self.vel += (GRAVITY_VECTOR * dt)
