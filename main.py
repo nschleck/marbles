@@ -7,7 +7,7 @@ from render import *
 # TODO implement sprites
 # TODO implement physics
 # TODO implement sprite-based phyics collisions
-
+# TODO group Marble objects in special Marbles class instance? w/ functions
 
 # pygame setup
 pygame.init()
@@ -17,11 +17,8 @@ running = True
 dt = 0
 
 # test objects
-marbles = []
 test_marble = Marble(40, pygame.Color("purple"), screen)
 test_marble_2 = Marble(30, pygame.Color("red"), screen)
-marbles.append(test_marble)
-marbles.append(test_marble_2)
 
 while running:
     # poll for events
@@ -30,7 +27,12 @@ while running:
             running = False
 
     # update screen
-    redraw_screen(screen, marbles)
+    redraw_screen(screen, Marble.all_marbles)
+
+    # update physics
+    for marble in Marble.all_marbles:
+        marble.update_position(dt)
+        marble.update_velocity(dt)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -45,6 +47,6 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    dt = clock.tick(60) / 1000 # limits FPS to 60
+    dt = clock.tick() / 1000 # limits FPS to 60
 
 pygame.quit()
