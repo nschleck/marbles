@@ -1,9 +1,10 @@
 import pygame
 from pygame import gfxdraw # antialiased shapes
+from pygame import Vector2 as Vec
 import random
 
-INIT_VEL_SCALAR = 150
-GRAVITY_VECTOR = pygame.Vector2(0, 100)
+INIT_VEL_SCALAR = 250
+GRAVITY_VECTOR = Vec(0, 500)
 
 class Marble:
     all_marbles = []
@@ -18,8 +19,11 @@ class Marble:
         self.screen = screen
 
         #initial position and velocity
-        self.pos = pygame.Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2)
-        self.vel = pygame.Vector2(random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR), random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR))
+        self.pos = Vec(random.randint(self.radius, self.screen.get_width() - self.radius),
+                                  random.randint(self.radius, self.screen.get_height() - self.radius))
+        self.vel = Vec(random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR), 
+                                  random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR))
+        self.elasticity = 1
 
         self.draw()
 
@@ -49,16 +53,20 @@ class Marble:
 
         if (self.pos.x + self.radius) > scr_width:
             self.pos.x = scr_width - self.radius
-            self.vel.x *= -1
+            self.bounce(Vec(-1,0))
         elif (self.pos.x - self.radius) < 0:
             self.pos.x = self.radius
-            self.vel.x *= -1
+            self.bounce(Vec(1,0))
         if (self.pos.y + self.radius) > scr_height:
             self.pos.y = scr_height - self.radius
-            self.vel.y *= -1
+            self.bounce(Vec(0,-1))
         elif (self.pos.y - self.radius) < 0:
             self.pos.y = self.radius
-            self.vel.y *= -1
+            self.bounce(Vec(0,1))
     
     def update_velocity(self, dt):
         self.vel += (GRAVITY_VECTOR * dt)
+
+    def bounce(self, normal:Vec):
+        normal = normal.normalize() #ensure normal vector is normalized; could be slow
+        self.vel = self.vel - (self.elasticity + 1) * (self.vel.dot(normal)) * normal

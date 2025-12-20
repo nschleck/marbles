@@ -4,10 +4,12 @@ from pygame import gfxdraw # antialiasing
 from marble import Marble
 from render import *
 
+from itertools import combinations
+
 # TODO implement sprites
-# TODO implement physics
-# TODO implement sprite-based phyics collisions
 # TODO group Marble objects in special Marbles class instance? w/ functions
+# TODO implement blur trails
+# TODO implement mass
 
 # pygame setup
 pygame.init()
@@ -19,6 +21,7 @@ dt = 0
 # test objects
 test_marble = Marble(40, pygame.Color("purple"), screen)
 test_marble_2 = Marble(30, pygame.Color("red"), screen)
+test_marble_3 = Marble(50, pygame.Color("blue"), screen)
 
 while running:
     # poll for events
@@ -32,7 +35,16 @@ while running:
     # update physics
     for marble in Marble.all_marbles:
         marble.update_position(dt)
-        marble.update_velocity(dt)
+        marble.update_velocity(dt) #also checks for wall bounces
+    
+    # do collisions between marble pairs
+    for marbleA, marbleB in combinations(Marble.all_marbles, 2):
+        AB_offset = pygame.Vector2(marbleB.pos - marbleA.pos)
+        bounce_distance = marbleB.radius + marbleA.radius
+
+        if (AB_offset.magnitude() <= bounce_distance):
+            marbleA.bounce(-AB_offset.normalize())
+            marbleB.bounce(AB_offset.normalize())
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -47,6 +59,6 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    dt = clock.tick() / 1000 # limits FPS to 60
+    dt = clock.tick(60) / 1000 # limits FPS to 60
 
 pygame.quit()
