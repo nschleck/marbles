@@ -43,8 +43,8 @@ while running:
         bounce_distance = marbleB.radius + marbleA.radius
 
         if (AB_offset.magnitude() <= bounce_distance):
-            marbleA.bounce(-AB_offset.normalize())
-            marbleB.bounce(AB_offset.normalize())
+            marbleA.bounce(-AB_offset.normalize(), (marbleB.mass/marbleA.mass))
+            marbleB.bounce(AB_offset.normalize(), (marbleA.mass/marbleB.mass))
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:

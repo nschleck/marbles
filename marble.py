@@ -13,6 +13,7 @@ class Marble:
         Marble.all_marbles.append(self) # Append the instance to the class-level list
         
         self.radius = radius
+        self.mass = 10 * radius * radius
         self.outline_width = 3
         self.color_fill = color_fill
         self.color_outline = pygame.Color("black")
@@ -53,20 +54,22 @@ class Marble:
 
         if (self.pos.x + self.radius) > scr_width:
             self.pos.x = scr_width - self.radius
-            self.bounce(Vec(-1,0))
+            self.bounce(Vec(-1,0), 1)
         elif (self.pos.x - self.radius) < 0:
             self.pos.x = self.radius
-            self.bounce(Vec(1,0))
+            self.bounce(Vec(1,0), 1)
         if (self.pos.y + self.radius) > scr_height:
             self.pos.y = scr_height - self.radius
-            self.bounce(Vec(0,-1))
+            self.bounce(Vec(0,-1), 1)
         elif (self.pos.y - self.radius) < 0:
             self.pos.y = self.radius
-            self.bounce(Vec(0,1))
+            self.bounce(Vec(0,1), 1)
     
     def update_velocity(self, dt):
         self.vel += (GRAVITY_VECTOR * dt)
 
-    def bounce(self, normal:Vec):
+    def bounce(self, normal:Vec, massRatio):
         normal = normal.normalize() #ensure normal vector is normalized; could be slow
-        self.vel = self.vel - (self.elasticity + 1) * (self.vel.dot(normal)) * normal
+        massFactor = 2 * massRatio / (1 + massRatio)
+        self.vel = self.vel - (self.elasticity + 1) * (self.vel.dot(normal)) * normal * massFactor
+
