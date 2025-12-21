@@ -8,6 +8,7 @@ GRAVITY_VECTOR = Vec(0, 500)
 
 class Marble:
     all_marbles = []
+    elasticity = 1
     
     def __init__(self, radius, color_fill, screen:pygame.Surface):
         Marble.all_marbles.append(self) # Append the instance to the class-level list
@@ -24,7 +25,6 @@ class Marble:
                                   random.randint(self.radius, self.screen.get_height() - self.radius))
         self.vel = Vec(random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR), 
                                   random.uniform(-INIT_VEL_SCALAR, INIT_VEL_SCALAR))
-        self.elasticity = 1
 
         self.draw()
 

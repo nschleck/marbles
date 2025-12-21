@@ -9,8 +9,21 @@ from itertools import combinations
 # TODO implement sprites
 # TODO group Marble objects in special Marbles class instance? w/ functions
 # TODO implement blur trails
-# TODO implement mass
 
+# functions
+def resolve_marble_collision(objA:Marble, objB:Marble):
+    normal = (objA.pos-objB.pos).normalize()
+    vel_relative = objA.vel - objB.vel
+    vel_rel_n = vel_relative.dot(normal)
+
+    if(vel_rel_n > 0):
+        return #no collision
+    
+    j = -(1 + Marble.elasticity) * vel_rel_n / (1/objA.mass + 1/objB.mass)
+
+    objA.vel = objA.vel + (j / objA.mass) * normal
+    objB.vel = objB.vel - (j / objB.mass) * normal
+    
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -43,8 +56,9 @@ while running:
         bounce_distance = marbleB.radius + marbleA.radius
 
         if (AB_offset.magnitude() <= bounce_distance):
-            marbleA.bounce(-AB_offset.normalize(), (marbleB.mass/marbleA.mass))
-            marbleB.bounce(AB_offset.normalize(), (marbleA.mass/marbleB.mass))
+            # marbleA.bounce(-AB_offset.normalize(), (marbleB.mass/marbleA.mass))
+            # marbleB.bounce(AB_offset.normalize(), (marbleA.mass/marbleB.mass))
+            resolve_marble_collision(marbleA, marbleB)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
