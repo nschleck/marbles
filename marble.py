@@ -10,15 +10,23 @@ class Marble:
     all_marbles = []
     elasticity = 0.96
     
-    def __init__(self, radius, color_fill, screen:pygame.Surface, pos=None):
+    def __init__(self, screen:pygame.Surface, radius=None, color_fill=None, pos=None):
         Marble.all_marbles.append(self) # Append the instance to the class-level list
-        
-        self.radius = radius
-        self.mass = 10 * radius * radius
-        self.outline_width = 3
-        self.color_fill = color_fill
-        self.color_outline = pygame.Color("black")
         self.screen = screen
+
+        if radius is None:
+            self.radius = random.randrange(10,100)
+        else:
+            self.radius = radius
+
+        if color_fill is None:
+            self.color_fill = pygame.Color(random.randrange(256),random.randrange(256),random.randrange(256))
+        else:
+            self.color_fill = color_fill
+
+        self.mass = 10 * self.radius * self.radius
+        self.outline_width = 3
+        self.color_outline = pygame.Color("black")
 
         #initial position and velocity
         if pos is None:
@@ -50,29 +58,16 @@ class Marble:
 
     def update_position(self, dt):
         self.pos += (self.vel * dt)
-
-        #check for wall collisions
-        scr_width = self.screen.get_width()
-        scr_height = self.screen.get_height()
-
-        if (self.pos.x + self.radius) > scr_width:
-            self.pos.x = scr_width - self.radius
-            self.bounce(Vec(-1,0), 1)
-        elif (self.pos.x - self.radius) < 0:
-            self.pos.x = self.radius
-            self.bounce(Vec(1,0), 1)
-        if (self.pos.y + self.radius) > scr_height:
-            self.pos.y = scr_height - self.radius
-            self.bounce(Vec(0,-1), 1)
-        elif (self.pos.y - self.radius) < 0:
-            self.pos.y = self.radius
-            self.bounce(Vec(0,1), 1)
     
     def update_velocity(self, dt):
         self.vel += (GRAVITY_VECTOR * dt)
 
-    def bounce(self, normal:Vec, massRatio):
+    def update_color(self):
+        value = min(255, int(255 * self.vel.magnitude()/(INIT_VEL_SCALAR*4)))
+        self.color_fill = pygame.Color(value,0,255-value)
+
+    #simple, mass-less bounce
+    def bounce(self, normal:Vec):
         normal = normal.normalize() #ensure normal vector is normalized; could be slow
-        massFactor = 2 * massRatio / (1 + massRatio)
-        self.vel = self.vel - (self.elasticity + 1) * (self.vel.dot(normal)) * normal * massFactor
+        self.vel = self.vel - (self.elasticity + 1) * (self.vel.dot(normal)) * normal
 
