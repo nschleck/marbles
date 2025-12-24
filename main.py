@@ -7,8 +7,12 @@ from marble import Marble
 from render import *
 from solver import *
 from gui import *
+from utils import *
 
+# TODO make gui objects scalable
+# TODO fix slider linking bug
 # TODO implement reset button
+# TODO implement pause, play, setp forward buttons?
 # TODO implement iterative marble un-overlapper?
 
 # TODO group Marble objects in special Marbles class instance? w/ functions?
@@ -28,11 +32,20 @@ dt = 0
 
 # gui
 slider_elasticity = Slider(
-    x=100,
-    y=500,
+    x=10,
+    y=70,
     w=300,
     min_val=0.0,
     max_val=1.0,
+    start_val=1.0
+)
+
+slider_gravity = Slider(
+    x=10,
+    y=130,
+    w=300,
+    min_val=0.0,
+    max_val=10.0,
     start_val=1.0
 )
 
@@ -47,10 +60,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif (event.type == pygame.MOUSEBUTTONUP) and not slider_elasticity.dragging:
+        elif (event.type == pygame.MOUSEBUTTONUP) and not slider_elasticity.dragging and not slider_gravity.dragging:
             click_x, click_y = event.pos
             newMarble = Marble(screen, pos=pygame.Vector2(click_x,click_y))
+            #report_xy(click_x, click_y)
         slider_elasticity.handle_event(event)
+        slider_gravity.handle_event(event)
 
     # update screen
     redraw_screen(screen, Marble.all_marbles)
@@ -72,18 +87,20 @@ while running:
         if (AB_offset.magnitude() <= bounce_distance):
             resolve_marble_collision(marbleA, marbleB)
 
-    #keys = pygame.key.get_pressed()
-
-    # update elasticity slider and render it
+    # update elasticity and gravity sliders and render
     Marble.elasticity = slider_elasticity.value
     slider_elasticity.draw(screen)
     slider_text = font.render(f"Elasticity: {slider_elasticity.value:.2f}", True, (0, 0, 0))
     screen.blit(slider_text, (slider_elasticity.rect.x, slider_elasticity.rect.y - 25))
 
+    Marble.gravity = slider_gravity.value
+    slider_gravity.draw(screen)
+    slider_text = font.render(f"Gravity: {slider_gravity.value:.2f}", True, (0, 0, 0))
+    screen.blit(slider_text, (slider_gravity.rect.x, slider_gravity.rect.y - 25))   
+
     # Get FPS value as a string and render it
-    fps_value = str(int(clock.get_fps()))
-    fps_surface = font.render(fps_value, True, (255, 0, 0)) # Red color
-    screen.blit(fps_surface, (10, 10)) # Position at top left
+    fps_value = "FPS:" + str(int(clock.get_fps()))
+    render_text(fps_value, font, screen, 10, 10, (0,0,0))
 
     pygame.display.flip()
 
